@@ -1,22 +1,30 @@
+/**
+ * @plugin qbit_remote
+ * @title qBittorrent Remote
+ * @description Отправка торрентов на ПК
+ * @version 1.0.5
+ * @author Mikhail
+ */
+
 (function () {
     'use strict';
 
-    function startQbitRemote() {
+    function startPlugin() {
         var qbit_url = 'http://192.168.88.247:8080';
 
-        // Стандартная регистрация плагина, которую парсер Лампы гарантированно считает
+        // Регистрация в самой системе
         Lampa.Plugins.add({
             id: 'qbit_remote',
             name: 'qBittorrent Remote',
             description: 'Отправка торрентов на ПК',
-            version: '1.0.4',
+            version: '1.0.5',
             author: 'Mikhail'
         });
 
-        // Слушатель событий торрента
+        // Перехват клика по торренту
         Lampa.Listener.follow('torrent', function (e) {
             if (e.name === 'select' && e.element && e.element.magnet) {
-                e.ghost = true; // Блокируем стандартный плеер Лампы
+                e.ghost = true; // Не запускаем встроенный плеер
                 Lampa.Noty.show('Отправка на ПК...');
 
                 var boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
@@ -47,10 +55,12 @@
         });
     }
 
-    // Официальный метод инициализации расширений в Лампе
-    if (window.Lampa) {
-        startQbitRemote();
+    // Инициализация
+    if (window.appready) {
+        startPlugin();
     } else {
-        window.plugin_qbit_remote_ready = startQbitRemote;
+        Lampa.Listener.follow('app', function (e) {
+            if (e.name === 'ready') startPlugin();
+        });
     }
 })();
