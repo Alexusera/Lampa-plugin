@@ -2,7 +2,7 @@
  * @plugin qbit_remote
  * @title qBittorrent Remote
  * @description Отправка торрентов на ПК
- * @version 1.0.9
+ * @version 1.1.0
  * @author Mikhail
  */
 
@@ -10,28 +10,23 @@
     'use strict';
 
     function startPlugin() {
-        var qbit_url = 'http://192.168.88.247:8080';
-
-        // 1. Регистрируем плагин в системе, чтобы Лампа видела его статус
+        // Регистрируем плагин в системе, чтобы Лампа создала правильную карточку
         Lampa.Plugins.add({
             id: 'qbit_remote',
             name: 'qBittorrent Remote',
             description: 'Отправка торрентов на ПК',
-            version: '1.0.9',
+            version: '1.1.0',
             author: 'Mikhail'
         });
 
-        // 2. Перехватываем клик по торренту
+        // Слушаем события торрента
         Lampa.Listener.follow('torrent', function (e) {
-            // Если пользователь выбрал торрент (select) и у него есть магнет-ссылка
             if (e.name === 'select' && e.element && e.element.magnet) {
-                
-                // e.ghost = true запрещает Лампе запускать стандартный плеер
-                e.ghost = true; 
+                e.ghost = true; // Блокируем стандартный плеер Лампы
                 
                 Lampa.Noty.show('Отправка на ПК...');
 
-                // Формируем FormData запрос к API qBittorrent
+                var qbit_url = 'http://192.168.88.247:8080';
                 var boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
                 var xhr = new XMLHttpRequest();
                 
@@ -60,7 +55,7 @@
         });
     }
 
-    // Ждем полной готовности приложения Лампа перед запуском логики
+    // Главное изменение: жесткий контроль готовности ядра Лампы
     if (window.appready) {
         startPlugin();
     } else {
