@@ -12,7 +12,6 @@
     function startPlugin() {
         var qbit_url = 'http://192.168.88.247:8080';
 
-        // Регистрация в самой системе
         Lampa.Plugins.add({
             id: 'qbit_remote',
             name: 'qBittorrent Remote',
@@ -21,10 +20,9 @@
             author: 'Mikhail'
         });
 
-        // Перехват клика по торренту
         Lampa.Listener.follow('torrent', function (e) {
             if (e.name === 'select' && e.element && e.element.magnet) {
-                e.ghost = true; // Не запускаем встроенный плеер
+                e.ghost = true;
                 Lampa.Noty.show('Отправка на ПК...');
 
                 var boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
@@ -55,7 +53,6 @@
         });
     }
 
-    // Инициализация
     if (window.appready) {
         startPlugin();
     } else {
