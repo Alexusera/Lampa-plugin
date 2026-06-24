@@ -1,11 +1,11 @@
 (function () {
     'use strict';
 
-    // Создаем плагин внутри глобального объекта Lampa
-    window.plugin_qbit_remote_ready = function () {
+    // 1. Создаем функцию инициализации плагина
+    function startPlugin() {
         var qbit_url = 'http://192.168.88.247:8080';
 
-        // Обязательная регистрация в списке расширений Лампы
+        // 2. Обязательная регистрация в системе Лампы
         Lampa.Plugins.add({
             id: 'qbit_remote',
             name: 'qBittorrent Remote',
@@ -14,11 +14,10 @@
             author: 'Mikhail'
         });
 
-        // Слушаем событие клика по торренту
+        // 3. Перехват клика по торренту
         Lampa.Listener.follow('torrent', function (e) {
             if (e.name === 'select' && e.element && e.element.magnet) {
-                // Перехватываем управление (не даем запускаться встроенному плееру)
-                e.ghost = true; 
+                e.ghost = true; // Отменяем стандартное открытие плеера
                 Lampa.Noty.show('Отправка на ПК...');
 
                 var boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
@@ -47,13 +46,14 @@
                 xhr.send(body);
             }
         });
-    };
+    }
 
-    // Механизм запуска, который требует движок Лампы
-    if (window.Lampa) {
-        window.plugin_qbit_remote_ready();
+    // 4. Правильный запуск внутри движка Лампы
+    if (window.appready) {
+        startPlugin();
     } else {
-        window.plugin_qbit_remote_ready_init = window.plugin_qbit_remote_ready;
+        Lampa.Listener.follow('app', function (e) {
+            if (e.name === 'ready') startPlugin();
+        });
     }
 })();
-    
